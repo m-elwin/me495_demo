@@ -24,6 +24,7 @@ setup(
         },
     entry_points={
         'console_scripts': [
+            'mynode = me495_demo.mynode:main'
         ],
     },
 )
