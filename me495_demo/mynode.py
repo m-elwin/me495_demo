@@ -6,6 +6,7 @@ from example_interfaces.msg import Int64
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
+from std_srvs.srv import Empty
 
 
 class MyNode(Node):
@@ -20,6 +21,10 @@ class MyNode(Node):
     ----------
     increment : Integer - the amount to increment the count by each time
 
+    Services
+    --------
+    reset (std_srv/srv/Empty) - reset the count
+
     """
 
     def __init__(self):
@@ -30,6 +35,7 @@ class MyNode(Node):
         self._inc = self.get_parameter('increment').value
         self._pub = self.create_publisher(Int64, 'count', 10)
         self._tmr = self.create_timer(0.5, self.timer_callback)
+        self._srv = self.create_service(Empty, 'reset', self.reset_callback)
         self._count = 0
 
     def timer_callback(self):
@@ -37,6 +43,12 @@ class MyNode(Node):
         self.get_logger().debug('Timer Hit')
         self._pub.publish(Int64(data=self._count))
         self._count += self._inc
+
+    def reset_callback(self, request, response):
+        """Reset the count to zero."""
+        self.get_logger().info('RESET!')
+        self._count = 0
+        return response
 
 
 def main(args=None):
