@@ -23,6 +23,10 @@ class MyNode(Node):
     --------
     reset (std_srv/srv/Empty) - reset the count
 
+    Subscribes
+    ----------
+    uncount (std_msgs/msg/Int64) - subtract a value from the count
+
     """
 
     def __init__(self):
@@ -34,6 +38,7 @@ class MyNode(Node):
         self._pub = self.create_publisher(Int64, 'count', 10)
         self._tmr = self.create_timer(0.5, self.timer_callback)
         self._srv = self.create_service(Empty, 'reset', self.reset_callback)
+        self._sub = self.create_subscription(Int64, 'uncount', self.uncount_callback, 10)
         self._count = 0
 
     def timer_callback(self):
@@ -47,6 +52,18 @@ class MyNode(Node):
         self.get_logger().info('RESET!')
         self._count = 0
         return response
+
+    def uncount_callback(self, uncount):
+        """
+        Subtract the value from count.
+
+        Args:
+        ----
+        uncount : std_msgs/msg/Int64 - amount to reset the count
+
+        """
+        self.get_logger().debug(f'Uncount: {uncount.data}')
+        self._count -= uncount.data
 
 
 def main(args=None):
